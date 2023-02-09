@@ -30,3 +30,8 @@ int main()
     // display the resultant image with highlighted moving objects
     cv_obj.display(highlighted, "highlighted");
 }
+
+int main()
+{
+    return 0;
+}

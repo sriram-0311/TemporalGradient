@@ -17,6 +17,7 @@ using namespace cv;
 // define class to perform cv operations
 class cv_factory {
     public:
+        vector<float> filter{(-0.5, 0, 0.5)};
         // function to read all image files in the directory and return a vector
         vector<Mat> read_images(string directory) {
             // create a vector to store the images
@@ -36,14 +37,51 @@ class cv_factory {
         }
 
         // function to compute the temporal gradient of the sequence using the specified filter, passed as a parameter and return the temporal gradient image as result
-        Mat temporal_gradient(vector<Mat> imgs, Mat filter) {
+        Mat temporal_gradient(vector<Mat> imgs, vector<float> filter, string filter_type) {
             // create a matrix to store the temporal gradient
             Mat temporal_gradient = Mat::zeros(imgs[0].size(), CV_8UC1);
-            // compute the temporal gradient of the sequence and display the result
-            for (int i = 0; i < imgs.size() - 1; i++) {
+
+        //  Check if this is right, i checked at a few sites and this is how they are finding gradients its the pixel wise difference in the same image,
+        //  still not sure how to execute this for Gaussians
+            //for (int i=0; i < imgs.size(); i++)
+            //{   Mat diff;
+            //    for (int j=0; j<imgs[0].size(); j++)
+            //    {for (int k=0; k<imgs[0][0].size(); k++)
+            //    { diff.at(j,k) = imgs[i].at(j,k+1) - imgs[i].at(j,k);}}
+            //    temporal_gradient = max(temporal_gradient, diff);}
+
+            //for (int i=0; i < imgs.size(); i++)
+            //{   Mat diff;
+            //    for (int j=0; j<imgs[0].size(); j++)
+            //    {for (int k=0; k<imgs[0][0].size(); k++)
+            //    { diff.at(j,k) = 0.5*(imgs[i].at(j,k+1) - imgs[i].at(j,k-1));}}
+            //    temporal_gradient = max(temporal_gradient, diff);}
+
+
+            if(filter_type == "1D diff")
+            {   // compute the temporal gradient of the sequence and display the result
+                for (int i = 0; i < imgs.size() - 1; i++) {
                 Mat diff = abs(0.5*(-imgs[i] + imgs[i + 1]));
                 temporal_gradient = max(temporal_gradient, diff);
+                }
             }
+
+            else if(filter_type == "simple filter")
+            {   // compute the temporal gradient of the sequence and display the result
+                for (int i = 1; i < imgs.size() - 1; i++) {
+                Mat diff = abs(0.5*(imgs[i+1] - imgs[i-1]));
+                temporal_gradient = max(temporal_gradient, diff);
+                }
+            }
+
+            if(filter_type == "Gauss")
+            {   // compute the temporal gradient of the sequence and display the result
+                for (int i = 0; i < imgs.size() - 2; i++) {
+                Mat diff = abs(filter[0]*imgs[i] + filter[1]*imgs[i+1] + filter[2]*imgs[i+2]);
+                temporal_gradient = max(temporal_gradient, diff);
+                }
+            }
+
             return temporal_gradient;
         }
 
@@ -76,5 +114,19 @@ class cv_factory {
             namedWindow(window_name, WINDOW_NORMAL);
             imshow(window_name, image);
             waitKey(0);
+        }
+
+        /* creating a 1D derivative of Gaussian filter_1D */
+        void CreateGaussian(const int size, int tsigma)
+        {   Mat Gauss;
+            double Nr, Dr, sum;
+            sum = 0;
+            for(int i=0;i<size;i++)
+            {   Nr = -(pow(i,2));
+                Dr = 2*pow(tsigma, 2);
+                Gauss.at<double>(i) = (Nr/Dr);
+                sum += Gauss.at<double>(i);
+            }
+            Gauss = Gauss/sum;
         }
 };
