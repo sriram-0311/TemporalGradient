@@ -41,23 +41,6 @@ class cv_factory {
             // create a matrix to store the temporal gradient
             Mat temporal_gradient = Mat::zeros(imgs[0].size(), CV_8UC1);
 
-        //  Check if this is right, i checked at a few sites and this is how they are finding gradients its the pixel wise difference in the same image,
-        //  still not sure how to execute this for Gaussians
-            //for (int i=0; i < imgs.size(); i++)
-            //{   Mat diff;
-            //    for (int j=0; j<imgs[0].size(); j++)
-            //    {for (int k=0; k<imgs[0][0].size(); k++)
-            //    { diff.at(j,k) = imgs[i].at(j,k+1) - imgs[i].at(j,k);}}
-            //    temporal_gradient = max(temporal_gradient, diff);}
-
-            //for (int i=0; i < imgs.size(); i++)
-            //{   Mat diff;
-            //    for (int j=0; j<imgs[0].size(); j++)
-            //    {for (int k=0; k<imgs[0][0].size(); k++)
-            //    { diff.at(j,k) = 0.5*(imgs[i].at(j,k+1) - imgs[i].at(j,k-1));}}
-            //    temporal_gradient = max(temporal_gradient, diff);}
-
-
             if(filter_type == "1D diff")
             {   // compute the temporal gradient of the sequence and display the result
                 for (int i = 0; i < imgs.size() - 1; i++) {
