@@ -17,7 +17,6 @@ using namespace cv;
 // define class to perform cv operations
 class cv_factory {
     public:
-        vector<float> filter{(-0.5, 0, 0.5)};
         // function to read all image files in the directory and return a vector
         vector<Mat> read_images(string directory) {
             // create a vector to store the images
@@ -37,7 +36,7 @@ class cv_factory {
         }
 
         // function to compute the temporal gradient of the sequence using the specified filter, passed as a parameter and return the temporal gradient image as result
-        Mat temporal_gradient(vector<Mat> imgs, vector<float> filter, string filter_type) {
+        Mat temporal_gradient(vector<Mat> imgs, string filter_type) {
             // create a matrix to store the temporal gradient
             Mat temporal_gradient = Mat::zeros(imgs[0].size(), CV_8UC1);
 
@@ -45,7 +44,10 @@ class cv_factory {
             {   // compute the temporal gradient of the sequence and display the result
                 for (int i = 0; i < imgs.size() - 1; i++) {
                 Mat diff = abs(0.5*(-imgs[i] + imgs[i + 1]));
+                // temporal_gradient = abs(0.5*(-imgs[i] + imgs[i + 1]));
                 temporal_gradient = max(temporal_gradient, diff);
+                imshow("temp grad", temporal_gradient);
+                waitKey(25);
                 }
             }
 
@@ -57,15 +59,48 @@ class cv_factory {
                 }
             }
 
-            if(filter_type == "Gauss")
+            else if(filter_type == "Gauss")
             {   // compute the temporal gradient of the sequence and display the result
-                for (int i = 0; i < imgs.size() - 2; i++) {
-                Mat diff = abs(filter[0]*imgs[i] + filter[1]*imgs[i+1] + filter[2]*imgs[i+2]);
+                cout << "Enter the value for std deviation";
+                float sigma;
+                cin >> sigma;
+                int size = 5*sigma;
+                Size ksize(1,0);
+                // Mat filter = getGaussianKernel(5, sigma);
+                // transpose(filter, filter);
+                Mat img1, img2;
+                for (int i = 0; i < imgs.size() - 1; i++) {
+                GaussianBlur(imgs[i], img1, ksize, sigma);
+                GaussianBlur(imgs[i+1], img2, ksize, sigma);
+                // filter2D(imgs[i], img1, -1, filter);
+                // filter2D(imgs[i+1], img1, -1, filter);
+                Mat diff = abs(img2 - img1);
                 temporal_gradient = max(temporal_gradient, diff);
                 }
             }
 
             return temporal_gradient;
+        }
+
+        // Smoothens the image using a normalized box filter
+        vector<Mat> Smoothing_box(vector<Mat> imgs)
+        {   vector<Mat> smoothed_image;
+            for(int i=0; i<imgs.size(); i++)
+            {   Mat img;
+                blur(imgs[i], img, Size(5,5));
+                smoothed_image.push_back(img);
+            }
+            return(smoothed_image);
+        }
+
+        // Smoothens the image using a Gaussian filter
+        vector<Mat> Smoothing_Gauss(vector<Mat> imgs, float ssigma)
+        {   vector<Mat> smoothed_image;
+            Size ksize(0,0);
+            for(int i=0; i<imgs.size(); i++)
+                GaussianBlur(imgs[i], smoothed_image[i], ksize, ssigma);
+
+            return(smoothed_image);
         }
 
         // function to threshold the temporal gradient image to create a mask of the moving objects
@@ -100,16 +135,16 @@ class cv_factory {
         }
 
         /* creating a 1D derivative of Gaussian filter_1D */
-        void CreateGaussian(const int size, int tsigma)
-        {   Mat Gauss;
-            double Nr, Dr, sum;
-            sum = 0;
-            for(int i=0;i<size;i++)
-            {   Nr = -(pow(i,2));
-                Dr = 2*pow(tsigma, 2);
-                Gauss.at<double>(i) = (Nr/Dr);
-                sum += Gauss.at<double>(i);
-            }
-            Gauss = Gauss/sum;
-        }
+        // void CreateGaussian(const int size, int tsigma)
+        // {   Mat Gauss;
+        //     double Nr, Dr, sum;
+        //     sum = 0;
+        //     for(int i=0;i<size;i++)
+        //     {   Nr = -(pow(i,2));
+        //         Dr = 2*pow(tsigma, 2);
+        //         Gauss.at<double>(i) = (Nr/Dr);
+        //         sum += Gauss.at<double>(i);
+        //     }
+        //     Gauss = Gauss/sum;
+        // }
 };

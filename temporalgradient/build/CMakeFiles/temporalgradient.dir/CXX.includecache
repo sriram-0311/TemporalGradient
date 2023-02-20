@@ -1,0 +1,26 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/anuj/Downloads/CV_P1/TemporalGradient/temporalgradient/inc/cv_factory.hpp
+iostream
+-
+opencv2/opencv.hpp
+-
+string
+-
+filesystem
+-
+
+/home/anuj/Downloads/CV_P1/TemporalGradient/temporalgradient/src/main.cpp
+iostream
+-
+../inc/cv_factory.hpp
+/home/anuj/Downloads/CV_P1/TemporalGradient/temporalgradient/inc/cv_factory.hpp
+string
+-
+
