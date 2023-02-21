@@ -1,5 +1,6 @@
 file(REMOVE_RECURSE
   "CMakeFiles/temporalgradient.dir/src/main.cpp.o"
+  "CMakeFiles/temporalgradient.dir/src/main.cpp.o.d"
   "temporalgradient"
   "temporalgradient.pdb"
 )

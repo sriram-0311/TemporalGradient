@@ -106,13 +106,43 @@ class cv_factory {
 
         // Smoothens the image using a Gaussian filter
         vector<Mat> Smoothing_Gauss(vector<Mat> imgs, float ssigma)
-        {   vector<Mat> smoothed_image;
+        {   cout<<"size of imgs: "<<imgs.size()<<endl;
+            vector<Mat> smoothed_image;
             Size ksize(0,0);
-            for(int i=0; i<imgs.size(); i++)
-                GaussianBlur(imgs[i], smoothed_image[i], ksize, ssigma);
-
-            return(smoothed_image);
+            for(int i=0; i<imgs.size()-1; i++){
+                Mat tempImage = Mat::zeros(imgs[0].size(), CV_8UC1);
+                GaussianBlur(imgs[i], tempImage, ksize, ssigma);
+                smoothed_image.push_back(tempImage);
+            }
+            return smoothed_image;
         }
+
+        // compute mean and std of temporal gradient over the entire image and return the result
+        // vector<float> mean_std(vector<Mat> imgs) {
+        //     // create a vector to store the mean and std
+        //     vector<float> mean_std;
+        //     // compute the temporal gradient of the sequence and store in vector
+        //     vector<Mat> temporal_gradient;
+        //     for (int i = 0; i < imgs.size() - 1; i++) {
+        //         temporal_gradient.push_back(abs((-imgs[i] + imgs[i + 1])));
+        //     }
+        //     // compute the mean and std of the temporal gradient over the entire image and store in vector using vectorize operation or openCV function
+        //     const cv::_OutputArray currentImageMean = 0;
+        //     const cv::_OutputArray currentStd = 0;
+        //     float MeanTotal = 0;
+        //     float StdTotal = 0;
+        //     for (int i = 0; i < temporal_gradient.size(); i++) {
+        //         meanStdDev(temporal_gradient[i], currentImageMean, currentStd);
+        //         MeanTotal += currentImageMean;
+        //         StdTotal += currentStd;
+        //     }
+        //     MeanTotal = MeanTotal / temporal_gradient.size();
+        //     StdTotal = StdTotal / temporal_gradient.size();
+        //     mean_std.push_back(MeanTotal);
+        //     mean_std.push_back(StdTotal);
+        //     return mean_std;
+
+        // }
 
         // function to threshold the temporal gradient image to create a mask of the moving objects
         Mat thresholding(Mat temporal_gradient, int threshold_value) {
