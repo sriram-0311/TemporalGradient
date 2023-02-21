@@ -20,19 +20,18 @@ int main()
     // read in sequence of images from dataset/Office/img01_0*.jpg and convert to grayscale
     vector<Mat> imgs = cv_obj.read_images("dataset/Office/");
     // compute the temporal gradient of the sequence and display the result
-    // Mat filter = (Mat_<float>(1, 3) << -1, 0, 1);
-    string type("1D diff");
+    string type("Gauss");
     // vector<Mat> smooth_imgs = cv_obj.Smoothing_box(imgs);
     // Mat temporalGradient = cv_obj.temporal_gradient(smooth_imgs, type);
     Mat temporalGradient = cv_obj.temporal_gradient(imgs, type);
-    imshow("temporal gradient", temporalGradient);
-    // threshold the result to create a mask of the moving objects
-    Mat mask = cv_obj.thresholding(temporalGradient, 30);
-    imshow("mask", mask);
+    // imshow("temporal gradient", temporalGradient);
+    // threshold the result to create a mask of the moving objectsf
+    // Mat mask = cv_obj.thresholding(temporalGradient, 30);
+    // imshow("mask", mask);
     // combine mask with original image to highlight moving objects
-    Mat highlighted = cv_obj.highlight(imgs[0], mask);
+    // Mat highlighted = cv_obj.highlight(imgs[0], mask);
     // display the resultant image with highlighted moving objects
-    cv_obj.display(highlighted, "highlighted");
+    // cv_obj.display(highlighted, "highlighted");
 
     return(0);
 }

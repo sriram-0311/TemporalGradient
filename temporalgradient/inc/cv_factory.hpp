@@ -10,6 +10,7 @@
 #include <opencv2/opencv.hpp>
 #include <string>
 #include <filesystem>
+#include <math.h>
 
 using namespace std;
 using namespace cv;
@@ -43,10 +44,11 @@ class cv_factory {
             if(filter_type == "1D diff")
             {   // compute the temporal gradient of the sequence and display the result
                 for (int i = 0; i < imgs.size() - 1; i++) {
-                Mat diff = abs(0.5*(-imgs[i] + imgs[i + 1]));
-                // temporal_gradient = abs(0.5*(-imgs[i] + imgs[i + 1]));
-                temporal_gradient = max(temporal_gradient, diff);
-                imshow("temp grad", temporal_gradient);
+                temporal_gradient = abs((-imgs[i] + imgs[i + 1]));
+                Mat mask = thresholding(temporal_gradient, 10);
+                imshow("actual image", imgs[i]);
+                waitKey(25);
+                imshow("temp grad", mask);
                 waitKey(25);
                 }
             }
@@ -54,8 +56,12 @@ class cv_factory {
             else if(filter_type == "simple filter")
             {   // compute the temporal gradient of the sequence and display the result
                 for (int i = 1; i < imgs.size() - 1; i++) {
-                Mat diff = abs(0.5*(imgs[i+1] - imgs[i-1]));
-                temporal_gradient = max(temporal_gradient, diff);
+                temporal_gradient = abs(0.5*(imgs[i+1] - imgs[i-1]));
+                Mat mask = thresholding(temporal_gradient, 20);
+                imshow("actual image", imgs[i]);
+                waitKey(25);
+                imshow("temp grad", mask);
+                waitKey(25);
                 }
             }
 
@@ -66,6 +72,7 @@ class cv_factory {
                 cin >> sigma;
                 int size = 5*sigma;
                 Size ksize(1,0);
+                Mat thresh = Mat::zeros(imgs[0].size(), CV_8UC1);
                 // Mat filter = getGaussianKernel(5, sigma);
                 // transpose(filter, filter);
                 Mat img1, img2;
@@ -74,8 +81,12 @@ class cv_factory {
                 GaussianBlur(imgs[i+1], img2, ksize, sigma);
                 // filter2D(imgs[i], img1, -1, filter);
                 // filter2D(imgs[i+1], img1, -1, filter);
-                Mat diff = abs(img2 - img1);
-                temporal_gradient = max(temporal_gradient, diff);
+                temporal_gradient = abs(img2 - img1);
+                Mat mask = thresholding(temporal_gradient, 20);
+                imshow("actual image", imgs[i]);
+                waitKey(25);
+                imshow("temp grad", mask);
+                waitKey(25);
                 }
             }
 
@@ -111,28 +122,28 @@ class cv_factory {
             return mask;
         }
 
-        // function to combine mask with original image to highlight moving objects
-        Mat highlight(Mat image, Mat mask) {
-            // combine mask with original image to highlight moving objects
-            Mat highlighted = Mat::zeros(image.size(), CV_8UC3);
-            // vectorize the operation to highlight the moving objects
-            for (int i = 0; i < image.rows; i++) {
-                for (int j = 0; j < image.cols; j++) {
-                    if (mask.at<uchar>(i, j) == 255) {
-                        highlighted.at<Vec3b>(i, j) = image.at<Vec3b>(i, j);
-                    }
-                }
-            }
-            return highlighted;
-        }
+        // // function to combine mask with original image to highlight moving objects
+        // Mat highlight(Mat image, Mat mask) {
+        //     // combine mask with original image to highlight moving objects
+        //     Mat highlighted = Mat::zeros(image.size(), CV_8UC3);
+        //     // vectorize the operation to highlight the moving objects
+        //     for (int i = 0; i < image.rows; i++) {
+        //         for (int j = 0; j < image.cols; j++) {
+        //             if (mask.at<uchar>(i, j) == 255) {
+        //                 highlighted.at<Vec3b>(i, j) = image.at<Vec3b>(i, j);
+        //             }
+        //         }
+        //     }
+        //     return highlighted;
+        // }
 
-        // function to display the temporal gradient image
-        void display(Mat image, string window_name) {
-            // display the temporal gradient image
-            namedWindow(window_name, WINDOW_NORMAL);
-            imshow(window_name, image);
-            waitKey(0);
-        }
+        // // function to display the temporal gradient image
+        // void display(Mat image, string window_name) {
+        //     // display the temporal gradient image
+        //     namedWindow(window_name, WINDOW_NORMAL);
+        //     imshow(window_name, image);
+        //     waitKey(0);
+        // }
 
         /* creating a 1D derivative of Gaussian filter_1D */
         // void CreateGaussian(const int size, int tsigma)
