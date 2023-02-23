@@ -1,3 +1,5 @@
+temporalgradient/build/*
+temporalgradient/build/
 # Prerequisites
 *.d
 
