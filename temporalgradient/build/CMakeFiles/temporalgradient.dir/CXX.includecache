@@ -13,7 +13,11 @@ opencv2/opencv.hpp
 -
 string
 -
+numeric
+-
 filesystem
+-
+math.h
 -
 
 /home/anuj/Downloads/CV_P1/TemporalGradient/temporalgradient/src/main.cpp

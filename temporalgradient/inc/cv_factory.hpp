@@ -9,6 +9,7 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include <string>
+#include <numeric>
 #include <filesystem>
 #include <math.h>
 
@@ -36,32 +37,42 @@ class cv_factory {
             return imgs;
         }
 
+        // function to threshold the temporal gradient image to create a mask of the moving objects
+        Mat thresholding(Mat temporal_gradient, int threshold_value) {
+            // threshold the result to create a mask of the moving objects
+            Mat mask;
+            threshold(temporal_gradient, mask, threshold_value, 255, THRESH_BINARY);
+            return mask;
+        }
+
         // function to compute the temporal gradient of the sequence using the specified filter, passed as a parameter and return the temporal gradient image as result
         Mat temporal_gradient(vector<Mat> imgs, string filter_type) {
             // create a matrix to store the temporal gradient
             Mat temporal_gradient = Mat::zeros(imgs[0].size(), CV_8UC1);
 
-            if(filter_type == "1D diff")
+            if(filter_type == "simple temporal")
             {   // compute the temporal gradient of the sequence and display the result
                 for (int i = 0; i < imgs.size() - 1; i++) {
                 temporal_gradient = abs((-imgs[i] + imgs[i + 1]));
-                Mat mask = thresholding(temporal_gradient, 10);
-                imshow("actual image", imgs[i]);
-                waitKey(25);
+                Mat mask = thresholding(temporal_gradient, 70);
+                if(i==566)
+                {imshow("actual image", imgs[i]);
+                waitKey(2500);
                 imshow("temp grad", mask);
-                waitKey(25);
+                waitKey(2500);}
                 }
             }
 
-            else if(filter_type == "simple filter")
+            else if(filter_type == "1D prewitt")
             {   // compute the temporal gradient of the sequence and display the result
                 for (int i = 1; i < imgs.size() - 1; i++) {
                 temporal_gradient = abs(0.5*(imgs[i+1] - imgs[i-1]));
-                Mat mask = thresholding(temporal_gradient, 20);
-                imshow("actual image", imgs[i]);
-                waitKey(25);
+                Mat mask = thresholding(temporal_gradient, 50);
+                if(i==57)
+                {imshow("actual image", imgs[i]);
+                waitKey(1000);
                 imshow("temp grad", mask);
-                waitKey(25);
+                waitKey(1000);}
                 }
             }
 
@@ -72,11 +83,22 @@ class cv_factory {
                 cin >> sigma;
                 int size = 5*sigma;
                 Size ksize(1,0);
-                Mat thresh = Mat::zeros(imgs[0].size(), CV_8UC1);
-                // Mat filter = getGaussianKernel(5, sigma);
+                // Mat thresh = Mat::zeros(imgs[0].size(), CV_8UC1);
+                // Mat filter = getGaussianKernel(7, sigma, CV_64F);
+                // filter /= sum(filter)[0];
                 // transpose(filter, filter);
+                // filter /= filter.at<float>(0,0);
+                
                 Mat img1, img2;
-                for (int i = 0; i < imgs.size() - 1; i++) {
+                for (int i = 0; i < imgs.size(); i+size) {
+                    // for(int j=1; j<size; j++)
+                    // {   temporal_gradient = abs(filter.at<float>(j)*imgs[i+j] + filter.at<float>(j-1)*imgs[i+j-1]);
+                    //     Mat mask = thresholding(temporal_gradient, 20);
+                    //     imshow("actual image", imgs[i+j-1]);
+                    //     waitKey(25);
+                    //     imshow("temp grad", mask);
+                    //     waitKey(25);
+                    // }
                 GaussianBlur(imgs[i], img1, ksize, sigma);
                 GaussianBlur(imgs[i+1], img2, ksize, sigma);
                 // filter2D(imgs[i], img1, -1, filter);
@@ -89,8 +111,20 @@ class cv_factory {
                 waitKey(25);
                 }
             }
-
             return temporal_gradient;
+        }
+
+        void temporal_gradient(vector<Mat> imgs, string filter_type, int thresh)
+        {   Mat temporal_gradient;
+            // compute the temporal gradient of the sequence and display the result
+            for (int i = 1; i < imgs.size() - 1; i++) {
+            temporal_gradient = abs(0.5*(imgs[i+1] - imgs[i-1]));
+            Mat mask = thresholding(temporal_gradient, thresh);
+            imshow("actual image", imgs[i]);
+            waitKey(25);
+            imshow("temp grad", mask);
+            waitKey(25);
+            }
         }
 
         // Smoothens the image using a normalized box filter
@@ -105,21 +139,34 @@ class cv_factory {
         }
 
         // Smoothens the image using a Gaussian filter
-        vector<Mat> Smoothing_Gauss(vector<Mat> imgs, float ssigma)
+        vector<Mat> Smoothing_Gauss(vector<Mat> imgs, double ssigma)
         {   vector<Mat> smoothed_image;
             Size ksize(0,0);
-            for(int i=0; i<imgs.size(); i++)
-                GaussianBlur(imgs[i], smoothed_image[i], ksize, ssigma);
+            for(int i=0; i<imgs.size(); i++){
+                Mat temp;
+                GaussianBlur(imgs[i], temp, ksize, ssigma);
+                smoothed_image.push_back(temp);}
 
             return(smoothed_image);
         }
 
-        // function to threshold the temporal gradient image to create a mask of the moving objects
-        Mat thresholding(Mat temporal_gradient, int threshold_value) {
-            // threshold the result to create a mask of the moving objects
-            Mat mask;
-            threshold(temporal_gradient, mask, threshold_value, 255, THRESH_BINARY);
-            return mask;
+        // Strategy to threshold the images after passing through a prewitt mask and using those images to find
+        // the std deviation that will be our new threshold to be used for final thresholding and getting the mask
+        double ThreshStrategy(vector<Mat> imgs)
+        {
+            vector<double> stdevs;
+            Scalar mean, std;
+            vector<Mat> processed_imgs;
+            for(int i=0; i<imgs.size()-1; i++)
+            {
+                Mat temp;
+                temp = abs((-imgs[i] + imgs[i + 1]));
+                meanStdDev(temp, mean, std);
+                stdevs.push_back(std[0]);
+            }
+            double deviation  = std::accumulate(stdevs.begin(), stdevs.end(), 0) / stdevs.size();
+            cout << deviation;
+            return(deviation);
         }
 
         // // function to combine mask with original image to highlight moving objects
