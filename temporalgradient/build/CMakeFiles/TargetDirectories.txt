@@ -1,3 +1,0 @@
-/home/anuj/Downloads/CV_P1/TemporalGradient/temporalgradient/build/CMakeFiles/rebuild_cache.dir
-/home/anuj/Downloads/CV_P1/TemporalGradient/temporalgradient/build/CMakeFiles/edit_cache.dir
-/home/anuj/Downloads/CV_P1/TemporalGradient/temporalgradient/build/CMakeFiles/temporalgradient.dir

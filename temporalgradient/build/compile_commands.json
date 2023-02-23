@@ -1,7 +1,0 @@
-[
-{
-  "directory": "/home/anuj/Downloads/CV_P1/TemporalGradient/temporalgradient/build",
-  "command": "/usr/bin/clang++   -I/usr/local/include/opencv, -I../inc -isystem /usr/local/include/opencv  -g   -o CMakeFiles/temporalgradient.dir/src/main.cpp.o -c /home/anuj/Downloads/CV_P1/TemporalGradient/temporalgradient/src/main.cpp",
-  "file": "/home/anuj/Downloads/CV_P1/TemporalGradient/temporalgradient/src/main.cpp"
-}
-]
